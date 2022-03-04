@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 
-contract HashworldCharactor is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burnable {
+contract HashworldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burnable {
     uint256 public constant PRICE_PER_TOKEN = 0.035 ether;
     uint256 public constant MAX_BUY_PER_ADDRESS = 10;
     string private _baseTokenURI;
@@ -28,7 +28,7 @@ contract HashworldCharactor is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
       uint8 _name
     );
 
-    constructor(uint256 maxSupply) ERC721("HashworldCharactor", "HC") {
+    constructor(uint256 maxSupply) ERC721("HashWorldCharacter", "HASHCT") {
       _maxSupply = maxSupply;
     }
 
@@ -89,7 +89,7 @@ contract HashworldCharactor is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
         for (uint256 i = 0; i < amount; i++) {
             uint256 tokenId = initSupply + i + 1;
             uint256 randomSeed = uint256(
-                keccak256(abi.encodePacked(msg.sender, i, block.difficulty))
+                keccak256(abi.encodePacked(msg.sender, tokenId, block.difficulty))
             );
             uint8 typeResult = calculateType(randomSeed);
             uint8 attributeResult = calculateAttribute(randomSeed);
@@ -132,6 +132,11 @@ contract HashworldCharactor is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
         return names[tokenId];
     }
 
+    function getCharactherByIndex(address owner,uint256 index) public view returns(uint256,uint256,address,uint8,uint8,uint8){
+        uint256 tokenId = tokenOfOwnerByIndex(owner,index);
+        return (index,tokenId,owner,getType(tokenId),getAttribute(tokenId),getName(tokenId));
+    }
+
     function supportsInterface(bytes4 interfaceId)
         public
         view
@@ -153,9 +158,9 @@ contract HashworldCharactor is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
         _unpause();
     }
 
-    function burn(uint256 tokenId) public override onlyOwner {
-        _burn(tokenId);
-    }
+    // function burn(uint256 tokenId) public override onlyOwner {
+    //     _burn(tokenId);
+    // }
 
     function withdraw(address to) external onlyOwner {
         uint256 balance = address(this).balance;
