@@ -19,7 +19,7 @@ contract HashWorldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
     uint256 public thisRoundSupply;
     
     uint256 public price_per_token = 0.035 ether;
-    bool private useNewTokenURI = false;
+    bool public useNewTokenURI = false;
 
     mapping(uint256 => uint8) public types;
     mapping(uint256 => uint8) public attributes;
@@ -136,7 +136,7 @@ contract HashWorldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
           return
           bytes(_baseURI).length > 0 ? string(abi.encodePacked(
             _baseURI, 
-            tokenId
+            Strings.toString(tokenId)
           )) : "";
       }else{
         uint16 index  = uint16(names[tokenId]) * 52 + uint16(types[tokenId]) * 6 +  uint16(attributes[tokenId]) * 3;
