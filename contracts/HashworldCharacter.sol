@@ -142,7 +142,9 @@ contract HashWorldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
             Strings.toString(tokenId)
           )) : "";
       }else{
-        uint16 index  = uint16(names[tokenId]) * 52 + uint16(types[tokenId]) * 7 +  uint16(attributes[tokenId]) * 3;
+        //   21*Name+3*(types-1)+Attr
+        // uint16 index  = uint16(names[tokenId]) * 52 + uint16(types[tokenId]) * 7 +  uint16(attributes[tokenId]) * 3;
+        uint16 index  = uint16(names[tokenId]) * 21 + uint16(types[tokenId]-1) * 3 +  uint16(attributes[tokenId]);
         return
           bytes(_baseURI).length > 0 ? string(abi.encodePacked(
             _baseURI, 
