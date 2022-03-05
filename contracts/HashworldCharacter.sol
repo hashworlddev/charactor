@@ -61,21 +61,23 @@ contract HashWorldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
         return _baseTokenURI;
     }
 
-    // get type by random distrubution, 1 girl=30%,2 boy=30%,3 mech=15%,4 mega=6%,5 angel=4%,6 orc=15%
+    // get type by random distrubution, 1 girl=26%,2 boy=26%,3 mech=15%, 4 mega=6%, 5 angel=4%,6 orc=15%,7 robot 8%
     function calculateType(uint256 seed) private pure returns (uint8) {
         uint256 result = seed % 100;
-        if (result < 30) {
+        if (result < 26) {
             return 1;
-        } else if (result < 60) {
+        } else if (result < 52) {
             return 2;
-        } else if (result < 75) {
+        } else if (result < 67) {
             return 3;
-        } else if (result < 81) {
+        } else if (result < 73) {
             return 4;
-        } else if (result < 85) {
+        } else if (result < 77) {
             return 5;
-        } else {
+        } else if (result < 92){
             return 6;
+        }else{
+            return 7;
         }
     }
 
@@ -139,7 +141,7 @@ contract HashWorldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
             Strings.toString(tokenId)
           )) : "";
       }else{
-        uint16 index  = uint16(names[tokenId]) * 52 + uint16(types[tokenId]) * 6 +  uint16(attributes[tokenId]) * 3;
+        uint16 index  = uint16(names[tokenId]) * 52 + uint16(types[tokenId]) * 7 +  uint16(attributes[tokenId]) * 3;
         return
           bytes(_baseURI).length > 0 ? string(abi.encodePacked(
             _baseURI, 
