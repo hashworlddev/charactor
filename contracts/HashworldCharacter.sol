@@ -35,6 +35,7 @@ contract HashWorldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
 
     constructor(uint256 _thisRoundSupply) ERC721("HashWorldCharacter", "HASHC") {
         thisRoundSupply = _thisRoundSupply;
+        _pause();
     }
 
     function setThisRoundSupply(uint256 _thisRoundSupply) public onlyOwner{
