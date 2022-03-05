@@ -10,11 +10,16 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 
-contract HashworldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burnable {
-    uint256 public constant PRICE_PER_TOKEN = 0.035 ether;
-    uint256 public constant MAX_BUY_PER_ADDRESS = 10;
+contract HashWorldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC721Burnable {
+   
+    uint256 public constant MAX_BUY_PER_ADDRESS = 5;
+    uint256 public constant MAX_SUPPLY = 5000;
+
     string private _baseTokenURI;
-    uint256 public _maxSupply;
+    uint256 public thisRoundSupply;
+    
+    uint256 public price_per_token = 0.035 ether;
+    bool private useNewTokenURI = false;
 
     mapping(uint256 => uint8) public types;
     mapping(uint256 => uint8) public attributes;
@@ -28,8 +33,14 @@ contract HashworldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
       uint8 _name
     );
 
-    constructor(uint256 maxSupply) ERC721("HashWorldCharacter", "HASHCT") {
-      _maxSupply = maxSupply;
+    constructor(uint256 _thisRoundSupply) ERC721("HashWorldCharacter", "HASHC") {
+        thisRoundSupply = _thisRoundSupply;
+    }
+
+    function setThisRoundSupply(uint256 _thisRoundSupply) public onlyOwner{
+        require(_thisRoundSupply>thisRoundSupply,"Wrong supply.");
+        require(_thisRoundSupply<=MAX_SUPPLY,"Large than max supply.");
+        thisRoundSupply = _thisRoundSupply;
     }
 
     modifier callerIsUser() {
@@ -80,10 +91,15 @@ contract HashworldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
         }
     }
 
+    function setPrice(uint256 price) public onlyOwner{
+        price_per_token = price;
+    }
+
     function mint(uint256 amount) external payable callerIsUser {
         require(balanceOf(msg.sender) + amount <= MAX_BUY_PER_ADDRESS, "Exceed max buy per address");
-        require(totalSupply() + amount <= _maxSupply, "Exceed max token supply");
-        require(msg.value >= amount * PRICE_PER_TOKEN, "Not enough ETH");
+        require(totalSupply() + amount <= MAX_SUPPLY, "Exceed max token supply");
+        require(totalSupply() + amount <= thisRoundSupply, "Exceed max token supply");
+        require(msg.value >= amount * price_per_token, "Not enough ETH");
 
         uint256 initSupply = totalSupply();
         for (uint256 i = 0; i < amount; i++) {
@@ -109,15 +125,27 @@ contract HashworldCharacter is ERC721, ERC721Enumerable, Pausable, Ownable, ERC7
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
+    function setUseNewTokenURI(bool flag) public onlyOwner{
+        useNewTokenURI = flag;
+    }
+
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
       require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
       string memory _baseURI = _baseTokenURI;
-      uint16 index  = uint16(names[tokenId]) * 52 + uint16(types[tokenId]) * 6 +  uint16(attributes[tokenId]) * 3;
-      return
+      if(useNewTokenURI){
+          return
+          bytes(_baseURI).length > 0 ? string(abi.encodePacked(
+            _baseURI, 
+            tokenId
+          )) : "";
+      }else{
+        uint16 index  = uint16(names[tokenId]) * 52 + uint16(types[tokenId]) * 6 +  uint16(attributes[tokenId]) * 3;
+        return
           bytes(_baseURI).length > 0 ? string(abi.encodePacked(
             _baseURI, 
             Strings.toString(index)
           )) : "";
+      }
     }
 
     function getType(uint256 tokenId) public view tokenUrlExist(tokenId) returns (uint8) {
